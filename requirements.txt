@@ -1,0 +1,26 @@
+# LangChain core framework for building agents and chains
+langchain
+
+# LangChain + OpenAI integration 
+langchain-openai
+
+# LangChain + Pinecone integration
+langchain-pinecone
+
+# LangChain community tools and utilities
+langchain-community
+
+# Official Pinecone Python SDK 
+pinecone
+
+# OpenAI SDK, required internally by langchain-openai
+openai
+
+# Streamlit,  builds the web UI with pure Python 
+streamlit
+
+# Loads .env file so your API keys are available as environment variables
+python-dotenv
+
+# Pandas, used in the ticket dashboard to display data as a table
+pandas
