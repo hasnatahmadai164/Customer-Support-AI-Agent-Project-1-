@@ -17,15 +17,6 @@ load_dotenv()
 
 
 # SAMPLE KNOWLEDGE BASE DOCUMENTS
-#
-# In a real company these would come from PDFs, Confluence,
-# Notion, or a CMS. Here we define them manually
-# Each document is small enough that chunking is not needed
-
-# Document() takes:
-#   page_content → the text the agent will read and use
-#   metadata     → extra info like source and category
-
 documents = [
 
     # RETURNS AND REFUNDS 
