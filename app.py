@@ -14,12 +14,6 @@ st.set_page_config(
 )
 
 # CUSTOM CSS
-#
-# Streamlit's default UI is functional but basic.
-# We inject a small CSS block to improve the visual quality.
-# unsafe_allow_html=True is required to render raw HTML/CSS.
-# ============================================================
-
 st.markdown("""
 <style>
     /* Light background for the whole app */
@@ -57,29 +51,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
-# ============================================================
 # SESSION STATE — PERSISTENT MEMORY ACROSS RE-RUNS
-#
-# Streamlit re-runs the full script on every user action.
-# Without session state, all variables would reset each time.
-# st.session_state is a dictionary that survives re-runs.
-#
-# We store two lists:
-#   messages      → for displaying in the chat UI (what the user sees)
-#   chat_history  → for passing to the agent (same data, same format)
-# ============================================================
 
 if "messages" not in st.session_state:
-    st.session_state.messages = []        # UI display history
+    st.session_state.messages = []        
 
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []    # Agent input history
-
-
-# ============================================================
-# HELPER: Load tickets from SQLite for the dashboard
-# ============================================================
+    st.session_state.chat_history = []    #
 
 def load_tickets() -> pd.DataFrame:
     """
@@ -95,16 +73,7 @@ def load_tickets() -> pd.DataFrame:
         conn.close()
         return df
     except Exception:
-        return pd.DataFrame()   # empty DataFrame if table doesn't exist yet
-
-
-# ============================================================
-# PAGE LAYOUT — TWO COLUMNS
-#
-# st.columns([2, 1]) creates two side-by-side sections.
-# [2, 1] ratio: left column is 2x wider than right column.
-# ============================================================
-
+        return pd.DataFrame()   
 col_chat, col_dashboard = st.columns([2, 1])
 
 # LEFT COLUMN: CHAT INTERFACE
@@ -120,51 +89,40 @@ with col_chat:
     </div>
     """, unsafe_allow_html=True)
 
-    #Welcome message on first load (before any messages exist)
     if not st.session_state.messages:
         st.info(
             "Hi! I'm Customer Support Agent"
             "I can help with returns, shipping, orders, payments and account issues. "
             "How can I help you today?"
         )
-
-    #Display all previous messages in the chat
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    #Chat input box (fixed at the bottom of the page)
     if user_input := st.chat_input("Type your message here..."):
 
-        # 1. Show the user's message immediately in the chat
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        # 2. Save it to session state so it persists on next re-run
         st.session_state.messages.append({
             "role": "user",
             "content": user_input
         })
 
-        # 3. Show a spinner while the agent processes (ReAct loop runs here)
         with st.spinner("ShopBot is thinking..."):
             response = run_agent(
                 user_message=user_input,
                 chat_history=st.session_state.chat_history
             )
 
-        # 4. Display the agent's response
         with st.chat_message("assistant"):
             st.markdown(response)
 
-        # 5. Save the agent's response to display history
         st.session_state.messages.append({
             "role": "assistant",
             "content": response
         })
 
-        # 6. Update chat_history 
-        # It gives the agent memory of the full conversation
         st.session_state.chat_history.append({
             "role": "user",
             "content": user_input
@@ -184,13 +142,11 @@ with col_chat:
 
 
 
-# RIGHT COLUMN: TICKET DASHBOARD
 with col_dashboard:
 
     st.markdown("###  Support Ticket Dashboard")
     st.caption("Live view of all tickets created by the agent")
 
-    # Manual refresh button — triggers a re-run to reload DB data
     if st.button("Refresh", type="secondary"):
         st.rerun()
 
@@ -213,8 +169,6 @@ with col_dashboard:
 
         st.divider()
 
-        #Individual ticket cards 
-        # Loop through each ticket and show it as a collapsible expander
         for _, ticket in tickets_df.iterrows():
 
             # Pick an icon based on ticket status
@@ -225,7 +179,6 @@ with col_dashboard:
             else:
                 icon = "🟢"
 
-            # st.expander() creates a collapsible section the user can click
             label = f"{icon} #{ticket['id']} — {ticket['issue_category']} ({ticket['priority']})"
             with st.expander(label):
                 st.write(f"**Customer:** {ticket['customer_name']}")
@@ -234,7 +187,6 @@ with col_dashboard:
                 st.write(f"**Created:** {ticket['created_at']}")
                 st.write("**Issue Description:**")
 
-                # st.text_area with disabled=True shows scrollable read-only text
                 # key must be unique per widget — we use the ticket ID
                 st.text_area(
                     label="",
@@ -244,7 +196,6 @@ with col_dashboard:
                     key=f"desc_{ticket['id']}"
                 )
 
-    # --- Sample questions for testing the agent ---
     st.divider()
     st.markdown("### 💡 Try These Prompts")
     st.markdown("""
