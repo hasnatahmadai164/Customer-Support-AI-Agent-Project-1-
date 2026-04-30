@@ -1,10 +1,3 @@
-# PURPOSE: Two responsibilities:
-#   1. Defines sample e-commerce support documents
-#   2. Ingests (uploads) those documents into Pinecone
-
-# RUN THIS FILE ONCE before starting the app:
-#   python knowledge_base.py
-
 import os
 import time
 from dotenv import load_dotenv
@@ -14,7 +7,6 @@ from langchain.schema import Document
 from pinecone import Pinecone, ServerlessSpec
 
 load_dotenv()
-
 
 # SAMPLE KNOWLEDGE BASE DOCUMENTS
 documents = [
@@ -138,18 +130,14 @@ def create_pinecone_index(pc: Pinecone) -> object:
             # This number MUST match the embedding model you use
             dimension=1536,
 
-            # cosine = measures angle between vectors (best for text similarity)
             metric="cosine",
 
-            # ServerlessSpec = Pinecone manages infrastructure automatically
             spec=ServerlessSpec(
                 cloud=os.getenv("PINECONE_CLOUD"),
                 region=os.getenv("PINECONE_REGION")
             )
         )
 
-        # Wait for the index to be ready before using it
-        # Pinecone takes a few seconds to initialize a new index
         print("Waiting for index to be ready...")
         while not pc.describe_index(index_name).status["ready"]:
             time.sleep(1)
@@ -158,7 +146,6 @@ def create_pinecone_index(pc: Pinecone) -> object:
     else:
         print(f"Index '{index_name}' already exists. Skipping creation.")
 
-    # Return the actual Index object (not just the name)
         return pc.Index(index_name)
 
 
