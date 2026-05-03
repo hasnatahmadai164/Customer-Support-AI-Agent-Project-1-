@@ -12,7 +12,6 @@ load_dotenv()
 DB_PATH = "support_tickets.db"
 
 
-# DATABASE INITIALIZATION
 def init_database():
     """
     Creates SQLite database and tickets table if they do not exist yet.
@@ -39,11 +38,9 @@ def init_database():
     conn.close()
 
 
-# Initialize DB when this file is imported by agent.py or app.py
 init_database()
 
 
-# PINECONE RETRIEVER HELPER
 def get_retriever():
     """
     Creates and returns a LangChain retriever backed by Pinecone.
@@ -97,7 +94,6 @@ def search_knowledge_base(query: str) -> str:
     try:
         retriever = get_retriever()
 
-        # invoke() sends the query string to Pinecone via semantic search     
         if not docs:
             return "No relevant information found in the knowledge base."
 
@@ -111,7 +107,6 @@ def search_knowledge_base(query: str) -> str:
     except Exception as e:
         return f"Error searching knowledge base: {str(e)}"
 
-# TOOL 2: CREATE SUPPORT TICKET
 @tool
 def create_support_ticket(
     customer_name: str,
@@ -144,7 +139,6 @@ def create_support_ticket(
 
         created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Insert the new ticket into the database
         cursor.execute("""
             INSERT INTO tickets 
             (customer_name, customer_email, issue_category, issue_description, priority, created_at)
@@ -169,7 +163,6 @@ def create_support_ticket(
         return f"Error creating support ticket: {str(e)}"
 
 
-# TOOL 3: ESCALATE TO HUMAN
 @tool
 def escalate_to_human(
     customer_name: str,
@@ -232,7 +225,6 @@ def escalate_to_human(
     except Exception as e:
         return f"Error registering escalation: {str(e)}"
 
-# EXPORT: All tools in one list for agent.py to import
 
 all_tools = [
     search_knowledge_base,
