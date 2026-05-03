@@ -4,8 +4,6 @@ import pandas as pd
 from agent import run_agent
 from tools import DB_PATH
 
-# PAGE CONFIG
-# Sets browser tab title, icon, and page layout
 
 st.set_page_config(
     page_title="Customer Support AI Agent",
